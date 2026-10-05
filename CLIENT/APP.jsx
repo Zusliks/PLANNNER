@@ -1,7 +1,44 @@
 import { useState } from 'react'
 import AUTH from './AUTH/AUTH.jsx'
+import DOCK from './UI/DOCK.jsx'
+import DRAWER from './UI/DRAWER.jsx'
+import TODAY from './PAGES/TODAY.jsx'
+import PROJECTS from './PAGES/PROJECTS.jsx'
+import PROJECT from './PAGES/PROJECT.jsx'
+import INBOX from './PAGES/INBOX.jsx'
+import { useStore } from './DATA/STORE.js'
+
+const PAGES = { today: TODAY, tasks: props => <TODAY {...props} all />, projects: PROJECTS, project: PROJECT, inbox: INBOX }
+
+function PLANNER({ user, onLogout }) {
+  const store = useStore(user)
+  const [page, setPage] = useState({ name: 'today' })
+  const [task, setTask] = useState(null)
+  const PAGE = PAGES[page.name]
+  const go = (name, id) => setPage({ name, id })
+
+  return (
+    <>
+      <PAGE store={store} user={user} id={page.id} go={go} edit={setTask} />
+      {task && <DRAWER key={task.id || 'new'} task={task} store={store} close={() => setTask(null)} />}
+      <DOCK page={page.name === 'project' ? 'projects' : page.name} go={go} badge={store.invites.filter(i => i.status === 'pending').length} user={user} onLogout={onLogout} />
+    </>
+  )
+}
 
 export default function APP() {
-  const [user, setUser] = useState(null)
-  return user ? <canvas className="blank" /> : <AUTH onAuth={setUser} />
+  const [user, setUser] = useState(() => JSON.parse(sessionStorage.getItem('user')))
+
+  const login = u => {
+    const me = { ...u, id: String(u.id) }
+    sessionStorage.setItem('user', JSON.stringify(me))
+    setUser(me)
+  }
+
+  const logout = () => {
+    sessionStorage.removeItem('user')
+    setUser(null)
+  }
+
+  return user ? <PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={login} />
 }
