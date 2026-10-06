@@ -13,8 +13,7 @@ export default function DRAWER({ task, store, close }) {
 
   const save = extra => {
     if (!t.title.trim()) return setError('Title is required')
-    store.saveTask({ ...t, ...extra, title: t.title.trim() })
-    close()
+    store.saveTask({ ...t, ...extra, title: t.title.trim() }).then(close, e => setError(e.message))
   }
 
   const remove = () => {

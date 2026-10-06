@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AUTH from './AUTH/AUTH.jsx'
 import DOCK from './UI/DOCK.jsx'
 import DRAWER from './UI/DRAWER.jsx'
@@ -6,7 +6,7 @@ import TODAY from './PAGES/TODAY.jsx'
 import PROJECTS from './PAGES/PROJECTS.jsx'
 import PROJECT from './PAGES/PROJECT.jsx'
 import INBOX from './PAGES/INBOX.jsx'
-import { useStore } from './DATA/STORE.js'
+import { useStore, api } from './DATA/STORE.js'
 
 const PAGES = { today: TODAY, tasks: props => <TODAY {...props} all />, projects: PROJECTS, project: PROJECT, inbox: INBOX }
 
@@ -27,18 +27,11 @@ function PLANNER({ user, onLogout }) {
 }
 
 export default function APP() {
-  const [user, setUser] = useState(() => JSON.parse(sessionStorage.getItem('user')))
+  const [user, setUser] = useState()
+  const login = u => setUser({ ...u, id: String(u.id) })
+  const logout = () => api('/auth/logout', 'POST').finally(() => setUser(null))
+  useEffect(() => { api('/me').then(d => login(d.user), () => setUser(null)) }, [])
 
-  const login = u => {
-    const me = { ...u, id: String(u.id) }
-    sessionStorage.setItem('user', JSON.stringify(me))
-    setUser(me)
-  }
-
-  const logout = () => {
-    sessionStorage.removeItem('user')
-    setUser(null)
-  }
-
-  return user ? <PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={login} />
+  if (user === undefined) return null
+  return user ?<PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={login} />
 }

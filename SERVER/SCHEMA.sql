@@ -5,3 +5,42 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  owner_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS members (
+  project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+  user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+  PRIMARY KEY (project_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+  id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  due DATE,
+  priority VARCHAR(6) NOT NULL DEFAULT 'Medium' CHECK (priority IN ('Low', 'Medium', 'High')),
+  status VARCHAR(5) NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'doing', 'done')),
+  project_id BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+  assignee_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  creator_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS invites (
+  id BIGSERIAL PRIMARY KEY,
+  project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  from_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  to_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status VARCHAR(8) NOT NULL DEFAULT 'pending',
+  created_at DATE NOT NULL DEFAULT CURRENT_DATE
+);

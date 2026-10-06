@@ -5,8 +5,7 @@ export default function INBOX({ store, go }) {
   const earlier = store.invites.filter(i => i.status !== 'pending')
 
   const answer = (i, yes) => {
-    store.answer(i.id, yes)
-    if (yes) go('project', i.project)
+    store.answer(i.id, yes).then(() => yes && go('project', i.project))
   }
 
   return (

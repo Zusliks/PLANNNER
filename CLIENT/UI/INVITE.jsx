@@ -8,9 +8,9 @@ export default function INVITE({ project, store, close }) {
   const send = e => {
     e.preventDefault()
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setMsg({ error: 'Please enter a valid email' })
-    const error = store.invite(project.id, email)
-    setMsg(error ? { error } : { ok: 'Invite sent' })
-    if (!error) setEmail('')
+    store.invite(project.id, email)
+      .then(() => { setMsg({ ok: 'Invite sent' }); setEmail('') })
+      .catch(e => setMsg({ error: e.message }))
   }
 
   return (
