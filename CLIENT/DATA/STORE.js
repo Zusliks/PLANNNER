@@ -23,7 +23,7 @@ export function useStore(me) {
 
   const projects = db.projects.filter(p => p.members.includes(me.id))
   const mine = projects.map(p => p.id)
-  const person = id => db.people.find(p => p.id === id) || { name: '?' }
+  const person = id => id === me.id ? { ...me, name: 'You' } : db.people.find(p => p.id === id) || { name: '?' }
   const project = id => db.projects.find(p => p.id === id)
 
   const can = t => {

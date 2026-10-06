@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Avatar } from './BITS.jsx'
 
 export default function INVITE({ project, store, close }) {
   const [email, setEmail] = useState('')
@@ -14,37 +13,30 @@ export default function INVITE({ project, store, close }) {
   }
 
   return (
-    <div className="popup" onClick={close}>
-      <div onClick={e => e.stopPropagation()}>
+    <div className="overlay" onClick={close}>
+      <form className="dialog" onClick={e => e.stopPropagation()} onSubmit={send}>
         <header>
-          Invite to the project
-          <button onClick={close}>X</button>
+          <h2>Invite people</h2>
+          <button type="button" onClick={close}>Close</button>
         </header>
-        <form onSubmit={send}>
-          <input autoFocus value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-          <button className="btn">Send</button>
-        </form>
-        {msg.error && <p className="error">{msg.error}</p>}
-        {msg.ok && <p className="ok">{msg.ok}</p>}
-        <small>Members</small>
-        {project.members.map(id => {
-          const m = store.person(id)
-          return (
-            <div key={id} className="member">
-              <Avatar name={m.name} size={28} />
-              <div>{m.name}<small>{m.email}</small></div>
-              <small>{id === project.owner ? 'owner' : 'member'}</small>
-            </div>
-          )
-        })}
+        <p className="note">Invite someone who already has a Planner account. They can accept or decline in their inbox.</p>
+        <label className={msg.error ? 'field bad' : 'field'}>
+          Email
+          <span className="row-input">
+            <input autoFocus value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com" />
+            <button className="btn">Send invite</button>
+          </span>
+          {msg.error && <span className="error">{msg.error}</span>}
+          {msg.ok && <span className="ok">{msg.ok}</span>}
+        </label>
+        {store.sent(project.id).length > 0 && <h3>Waiting for an answer</h3>}
         {store.sent(project.id).map(i => (
           <div key={i.id} className="member">
-            <span className="avatar none" />
-            <div>{i.to}<small>invited {i.date}</small></div>
-            <button className="late" onClick={() => store.revoke(i.id)}>revoke</button>
+            <span>{i.to}</span>
+            <button type="button" className="link" onClick={() => store.revoke(i.id)}>Revoke</button>
           </div>
         ))}
-      </div>
+      </form>
     </div>
   )
 }

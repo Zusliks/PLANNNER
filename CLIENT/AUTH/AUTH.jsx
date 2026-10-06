@@ -2,8 +2,8 @@ import { useState } from 'react'
 
 const check = (f, reg) => ({
   name: reg && !f.name.trim() ? 'Please enter your name' : '',
-  email: /^\S+@\S+\.\S+$/.test(f.email.trim()) ? '' : 'Please enter a valid email',
-  password: !f.password ? 'Please enter a password' : reg && f.password.length < 8 ? 'At least 8 characters' : ''
+  email: /^\S+@\S+\.\S+$/.test(f.email.trim()) ? '' : 'Enter a valid email address, for example name@example.com',
+  password: !f.password ? 'Please enter a password' : reg && f.password.length < 8 ? 'Password must be at least 8 characters' : ''
 })
 
 const post = async (url, body) => {
@@ -51,9 +51,9 @@ export default function AUTH({ onAuth }) {
 
   return (
     <div className="auth">
-      <div className="art" />
       <form onSubmit={submit} noValidate>
-        <h1>{reg ? 'Create account' : 'Sign in'}</h1>
+        <b className="logo">Planner</b>
+        <h1>{reg ? 'Create an account' : 'Sign in'}</h1>
         {reg && field('name', 'Name', { autoComplete: 'name' })}
         {field('email', 'Email', { type: 'email', autoComplete: 'email' })}
         <label className={errors.password ? 'field bad' : 'field'}>
@@ -62,13 +62,13 @@ export default function AUTH({ onAuth }) {
             <input type={show ? 'text' : 'password'} value={form.password} onChange={set('password')} autoComplete={reg ? 'new-password' : 'current-password'} />
             <button type="button" onClick={() => setShow(!show)}>{show ? 'Hide' : 'Show'}</button>
           </span>
-          {errors.password && <span className="error">{errors.password}</span>}
+          {errors.password ? <span className="error">{errors.password}</span> : reg && <span className="hint">At least 8 characters</span>}
         </label>
         {msg.error && <p className="error" role="alert">{msg.error}</p>}
         {msg.ok && <p className="ok">{msg.ok}</p>}
         <button className="btn" disabled={busy}>{busy ? 'Please wait...' : reg ? 'Create account' : 'Sign in'}</button>
         <p className="switch">
-          {reg ? 'Already have an account? ' : 'No account yet? '}
+          {reg ? 'Already have an account? ' : "Don't have an account? "}
           <a onClick={swap}>{reg ? 'Sign in' : 'Create one'}</a>
         </p>
       </form>

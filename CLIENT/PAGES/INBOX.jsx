@@ -1,4 +1,4 @@
-import { Avatar, pad } from '../UI/BITS.jsx'
+import { label } from '../UI/BITS.jsx'
 
 export default function INBOX({ store, go }) {
   const pending = store.invites.filter(i => i.status === 'pending')
@@ -10,42 +10,41 @@ export default function INBOX({ store, go }) {
 
   return (
     <main className="page">
-      <section className="side">
-        <small>Inbox</small>
-        <h1 className="big">{pad(pending.length)}</h1>
-        <h2>Invites</h2>
-        <p>Accept to join the project</p>
-      </section>
-      <section className="list">
-        {!pending.length && <p className="empty">No new invites.</p>}
-        {pending.map(i => {
-          const from = store.person(i.from)
-          return (
-            <div key={i.id} className="invite">
-              <header>
-                <Avatar name={from.name} size={44} />
-                <div>
-                  <small>{from.name} invites you to</small>
-                  <h3>{store.project(i.project).name}</h3>
+      <div className="head">
+        <div>
+          <h1>Invitations</h1>
+          <p>Accept an invitation to see the project and its tasks.</p>
+        </div>
+      </div>
+      {pending.length > 0
+        ? (
+          <div className="list">
+            {pending.map(i => (
+              <div key={i.id} className="row static">
+                <div className="name">
+                  <span>{store.person(i.from).name} invited you to <b>{store.project(i.project).name}</b></span>
+                  <small>{label(i.date)}</small>
                 </div>
-                <small>{i.date}</small>
-              </header>
-              <footer>
-                <button className="btn" onClick={() => answer(i, true)}>Accept</button>
                 <button className="btn line" onClick={() => answer(i, false)}>Decline</button>
-              </footer>
-            </div>
-          )
-        })}
-        {earlier.length > 0 && <small className="group">earlier</small>}
-        {earlier.map(i => (
-          <div key={i.id} className="member">
-            <Avatar name={store.person(i.from).name} />
-            <div>{store.person(i.from).name}, {store.project(i.project).name}</div>
-            <small>{i.status}</small>
+                <button className="btn" onClick={() => answer(i, true)}>Accept</button>
+              </div>
+            ))}
           </div>
-        ))}
-      </section>
+        )
+        : <p className="empty">No new invitations.</p>}
+      {earlier.length > 0 && (
+        <section>
+          <h3>Earlier</h3>
+          <div className="list">
+            {earlier.map(i => (
+              <div key={i.id} className="row static">
+                <span className="name muted">You {i.status} {store.project(i.project).name}</span>
+                <small>{label(i.date)}</small>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   )
 }

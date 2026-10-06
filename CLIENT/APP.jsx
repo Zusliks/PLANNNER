@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import AUTH from './AUTH/AUTH.jsx'
-import DOCK from './UI/DOCK.jsx'
-import DRAWER from './UI/DRAWER.jsx'
+import NAV from './UI/NAV.jsx'
+import TASK from './UI/TASK.jsx'
 import TODAY from './PAGES/TODAY.jsx'
 import PROJECTS from './PAGES/PROJECTS.jsx'
 import PROJECT from './PAGES/PROJECT.jsx'
@@ -19,9 +19,9 @@ function PLANNER({ user, onLogout }) {
 
   return (
     <>
+      <NAV page={page.name === 'project' ? 'projects' : page.name} go={go} badge={store.invites.filter(i => i.status === 'pending').length} user={user} onLogout={onLogout} />
       <PAGE store={store} user={user} id={page.id} go={go} edit={setTask} />
-      {task && <DRAWER key={task.id || 'new'} task={task} store={store} close={() => setTask(null)} />}
-      <DOCK page={page.name === 'project' ? 'projects' : page.name} go={go} badge={store.invites.filter(i => i.status === 'pending').length} user={user} onLogout={onLogout} />
+      {task && <TASK key={task.id || 'new'} task={task} store={store} close={() => setTask(null)} />}
     </>
   )
 }
@@ -33,5 +33,5 @@ export default function APP() {
   useEffect(() => { api('/me').then(d => login(d.user), () => setUser(null)) }, [])
 
   if (user === undefined) return null
-  return user ?<PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={login} />
+  return user ? <PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={login} />
 }
