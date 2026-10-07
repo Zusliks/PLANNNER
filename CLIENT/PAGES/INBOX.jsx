@@ -10,41 +10,28 @@ export default function INBOX({ store, go }) {
 
   return (
     <main className="page">
-      <div className="head">
-        <div>
-          <h1>Invitations</h1>
-          <p>Accept an invitation to see the project and its tasks.</p>
-        </div>
-      </div>
-      {pending.length > 0
-        ? (
-          <div className="list">
-            {pending.map(i => (
-              <div key={i.id} className="row static">
-                <div className="name">
-                  <span>{store.person(i.from).name} invited you to <b>{store.project(i.project).name}</b></span>
-                  <small>{label(i.date)}</small>
-                </div>
-                <button className="btn line" onClick={() => answer(i, false)}>Decline</button>
+      <h1>Invitations</h1>
+      <table>
+        <tbody>
+          {pending.map(i => (
+            <tr key={i.id}>
+              <td>{store.person(i.from).name} invited you to <b>{store.project(i.project).name}</b></td>
+              <td>{label(i.date)}</td>
+              <td>
+                <button className="btn white" onClick={() => answer(i, false)}>Decline</button>
                 <button className="btn" onClick={() => answer(i, true)}>Accept</button>
-              </div>
-            ))}
-          </div>
-        )
-        : <p className="empty">No new invitations.</p>}
-      {earlier.length > 0 && (
-        <section>
-          <h3>Earlier</h3>
-          <div className="list">
-            {earlier.map(i => (
-              <div key={i.id} className="row static">
-                <span className="name muted">You {i.status} {store.project(i.project).name}</span>
-                <small>{label(i.date)}</small>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+              </td>
+            </tr>
+          ))}
+          {pending.length === 0 && <tr><td>No new invitations.</td></tr>}
+        </tbody>
+      </table>
+      <h3>Earlier</h3>
+      <ul>
+        {earlier.map(i => (
+          <li key={i.id}>You {i.status === 'accepted' ? 'joined' : 'declined'} {store.project(i.project).name} ({label(i.date)})</li>
+        ))}
+      </ul>
     </main>
   )
 }

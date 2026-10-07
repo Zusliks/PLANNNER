@@ -1,26 +1,22 @@
 import { done, day } from '../DATA/STORE.js'
-import { Check, Priority, label } from './BITS.jsx'
+import { label } from './BITS.jsx'
 
 export default function ROW({ task, store, edit }) {
-  const finished = done(task)
-  const late = !finished && task.due && task.due < day(0)
   const project = store.project(task.project)
-  const sub = project ? project.name + (task.assignee ? ', ' + store.person(task.assignee).name : '') : task.desc
-
-  const toggle = e => {
-    e.stopPropagation()
-    if (store.can(task)) store.toggle(task)
-  }
+  const late = !done(task) && task.due && task.due < day(0)
 
   return (
-    <div className={finished ? 'row done' : 'row'} onClick={() => edit(task)}>
-      <Check done={finished} onClick={toggle} disabled={!store.can(task)} />
-      <div className="name">
-        <span>{task.title}</span>
-        {sub && <small>{sub}</small>}
-      </div>
-      <Priority priority={task.priority} />
-      <span className={late ? 'due late' : 'due'}>{label(task.due)}</span>
-    </div>
+    <tr className={done(task) ? 'done' : ''}>
+      <td className="check">
+        <input type="checkbox" checked={done(task)} disabled={!store.can(task)} onChange={() => store.toggle(task)} />
+      </td>
+      <td onClick={() => edit(task)} className="click">
+        {task.title}
+        <br />
+        <small>{project ? project.name : task.desc}</small>
+      </td>
+      <td className={task.priority === 'High' ? 'high' : ''}>{task.priority}</td>
+      <td className={late ? 'late' : ''}>{label(task.due)}</td>
+    </tr>
   )
 }

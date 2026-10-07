@@ -1,80 +1,78 @@
 import { useState } from 'react'
-import { PRIORITIES } from './BITS.jsx'
 
 export const STATUS = { todo: 'To do', doing: 'In progress', done: 'Done' }
 
 export default function TASK({ task, store, close }) {
-  const [t, setT] = useState(task)
   const [error, setError] = useState('')
   const can = store.can(task)
-  const project = store.project(t.project)
-  const set = k => e => setT({ ...t, [k]: e.target.value })
+  const project = store.project(task.project)
 
   const save = e => {
     e.preventDefault()
-    if (!t.title.trim()) return setError('Please enter a title')
-    store.saveTask({ ...t, title: t.title.trim() }).then(close, e => setError(e.message))
+    const form = Object.fromEntries(new FormData(e.target))
+    store.saveTask({ ...task, ...form }).then(close, err => setError(err.message))
   }
 
   const remove = () => {
-    if (!confirm('Delete this task?')) return
-    store.removeTask(t.id)
-    close()
+    if (confirm('Delete this task?')) {
+      store.removeTask(task.id)
+      close()
+    }
   }
 
   return (
     <div className="overlay" onClick={close}>
       <form className="dialog" onClick={e => e.stopPropagation()} onSubmit={save}>
         <header>
-          <h2>{t.id ? (can ? 'Edit task' : 'Task') : 'New task'}</h2>
-          <button type="button" onClick={close}>Close</button>
+          <h2>{task.id ? 'Edit task' : 'New task'}</h2>
+          <button type="button" onClick={close}>X</button>
         </header>
-        {project && <small>{project.name}</small>}
-        <label className={error ? 'field bad' : 'field'}>
-          Title
-          <input value={t.title} onChange={set('title')} disabled={!can} autoFocus={!t.id} />
-          {error && <span className="error">{error}</span>}
-        </label>
-        <label className="field">
-          Description
-          <textarea value={t.desc} onChange={set('desc')} disabled={!can} rows="3" />
-        </label>
-        <div className="pair">
-          <label className="field">
-            Due date
-            <input type="date" value={t.due} onChange={set('due')} disabled={!can} />
+        <fieldset disabled={!can}>
+          <label>
+            Title
+            <input name="title" defaultValue={task.title} required />
           </label>
-          <label className="field">
+          <label>
+            Description
+            <textarea name="desc" defaultValue={task.desc} rows="3" />
+          </label>
+          <label>
+            Due date
+            <input name="due" type="date" defaultValue={task.due} />
+          </label>
+          <label>
             Priority
-            <select value={t.priority} onChange={set('priority')} disabled={!can}>
-              {PRIORITIES.map(p => <option key={p}>{p}</option>)}
+            <select name="priority" defaultValue={task.priority}>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
             </select>
           </label>
-        </div>
-        <div className="pair">
           {project && (
-            <label className="field">
+            <label>
               Assignee
-              <select value={t.assignee || ''} onChange={set('assignee')} disabled={!can}>
+              <select name="assignee" defaultValue={task.assignee || ''}>
                 <option value="">Nobody</option>
                 {project.members.map(id => <option key={id} value={id}>{store.person(id).name}</option>)}
               </select>
             </label>
           )}
-          <label className="field">
+          <label>
             Status
-            <select value={t.status} onChange={set('status')} disabled={!can}>
-              {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            <select name="status" defaultValue={task.status}>
+              <option value="todo">To do</option>
+              <option value="doing">In progress</option>
+              <option value="done">Done</option>
             </select>
           </label>
-        </div>
-        {!can && <p className="note">Only the project owner, the creator or the assignee can change this task.</p>}
+        </fieldset>
+        {error && <p className="msg">{error}</p>}
+        {!can && <p>You can only look at this task.</p>}
         {can && (
           <footer>
-            {t.id && <button type="button" className="btn danger" onClick={remove}>Delete</button>}
-            <span className="grow" />
-            <button type="button" className="btn line" onClick={close}>Cancel</button>
-            <button className="btn">{t.id ? 'Save changes' : 'Add task'}</button>
+            {task.id && <button type="button" className="btn red" onClick={remove}>Delete</button>}
+            <button type="button" className="btn white" onClick={close}>Cancel</button>
+            <button className="btn">Save</button>
           </footer>
         )}
       </form>
