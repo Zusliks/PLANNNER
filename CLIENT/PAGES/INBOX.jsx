@@ -1,4 +1,4 @@
-import { label } from '../UI/BITS.jsx'
+import { label, Title } from '../UI/BITS.jsx'
 
 export default function INBOX({ store, go }) {
   const pending = store.invites.filter(i => i.status === 'pending')
@@ -9,29 +9,30 @@ export default function INBOX({ store, go }) {
   }
 
   return (
-    <main className="page">
-      <h1>Invitations</h1>
-      <table>
-        <tbody>
-          {pending.map(i => (
-            <tr key={i.id}>
-              <td>{store.person(i.from).name} invited you to <b>{store.project(i.project).name}</b></td>
-              <td>{label(i.date)}</td>
-              <td>
-                <button className="btn white" onClick={() => answer(i, false)}>Decline</button>
-                <button className="btn" onClick={() => answer(i, true)}>Accept</button>
-              </td>
-            </tr>
-          ))}
-          {pending.length === 0 && <tr><td>No new invitations.</td></tr>}
-        </tbody>
-      </table>
-      <h3>Earlier</h3>
-      <ul>
+    <main className="page inbox">
+      <div className="left">
+        <Title text="INBOX" />
+        <h2>{pending.length} invites waiting<br />for your answer.</h2>
+        <h3>Earlier</h3>
         {earlier.map(i => (
-          <li key={i.id}>You {i.status === 'accepted' ? 'joined' : 'declined'} {store.project(i.project).name} ({label(i.date)})</li>
+          <p key={i.id}>You {i.status === 'accepted' ? 'joined' : 'declined'} {store.project(i.project).name}, {label(i.date)}</p>
         ))}
-      </ul>
+      </div>
+      <div className="right">
+        {pending.length === 0 && <p>No new invites.</p>}
+        {pending.map((i, n) => (
+          <div key={i.id} className={n === 0 ? 'invite' : 'invite small'}>
+            {n === 0 && <Title text="YOU'RE INVITED" small />}
+            <p>{store.person(i.from).name} wants you on</p>
+            <h2>{store.project(i.project).name}</h2>
+            <small>Sent {label(i.date)}</small>
+            <div>
+              <button className="btn" onClick={() => answer(i, true)}>ACCEPT</button>
+              <button className="btn black" onClick={() => answer(i, false)}>DECLINE</button>
+            </div>
+          </div>
+        ))}
+      </div>
     </main>
   )
 }

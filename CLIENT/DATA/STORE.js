@@ -21,24 +21,16 @@ export function useStore(me) {
   const run = (...args) => api(...args).finally(load)
   useEffect(() => { load() }, [])
 
-  const projects = db.projects.filter(p => p.members.includes(me.id))
-  const mine = projects.map(p => p.id)
-  const person = id => id === me.id ? { ...me, name: 'You' } : db.people.find(p => p.id === id) || { name: '?' }
   const project = id => db.projects.find(p => p.id === id)
 
-  const can = t => {
-    const p = project(t.project)
-    return !p || !t.id || p.owner === me.id || t.assignee === me.id || t.creator === me.id
-  }
-
   return {
-    projects,
-    tasks: db.tasks.filter(t => mine.includes(t.project) || (!t.project && t.creator === me.id)),
+    projects: db.projects.filter(p => p.members.includes(me.id)),
+    tasks: db.tasks,
     invites: db.invites.filter(i => i.to === me.email),
     sent: id => db.invites.filter(i => i.project === id && i.status === 'pending'),
-    person,
+    person: id => id === me.id ? { ...me, name: 'You' } : db.people.find(p => p.id === id) || { name: '?' },
     project,
-    can,
+    can: t => !t.project || !t.id || [project(t.project)?.owner, t.assignee, t.creator].includes(me.id),
     invite: (id, email) => run(`/projects/${id}/invites`, 'POST', { email }),
     answer: (id, yes) => run(`/invites/${id}`, 'POST', { accept: yes }),
     saveTask: t => run(t.id ? `/tasks/${t.id}` : '/tasks', t.id ? 'PUT' : 'POST', t),

@@ -28,10 +28,9 @@ function PLANNER({ user, onLogout }) {
 
 export default function APP() {
   const [user, setUser] = useState()
-  const login = u => setUser({ ...u, id: String(u.id) })
   const logout = () => api('/auth/logout', 'POST').finally(() => setUser(null))
-  useEffect(() => { api('/me').then(d => login(d.user), () => setUser(null)) }, [])
+  useEffect(() => { api('/me').then(d => setUser(d.user), () => setUser(null)) }, [])
 
   if (user === undefined) return null
-  return user ? <PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={login} />
+  return user ? <PLANNER user={user} onLogout={logout} /> : <AUTH onAuth={setUser} />
 }

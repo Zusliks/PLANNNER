@@ -12,14 +12,9 @@ const member = (project, user) => one('SELECT 1 FROM members WHERE project_id = 
 const MINE = 'SELECT project_id FROM members WHERE user_id = $1'
 pg.types.setTypeParser(1082, v => v)
 
-app.get('/api/health', async (_, res) => {
-  await db.query('SELECT 1')
-  res.json({ ok: true })
-})
-
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password } = clean(req.body)
-  if (!name || !/^\S+@\S+\.\S+$/.test(email) || password.length < 8) return res.status(400).json({ error: 'Name, a valid email and a password of at least 8 characters are required.' })
+  if (!name || name.length > 120 || email.length > 255 || !/^\S+@\S+\.\S+$/.test(email) || password.length < 8) return res.status(400).json({ error: 'Name, a valid email and a password of at least 8 characters are required.' })
   const { rows: [user] } = await db.query(
     'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) ON CONFLICT (email) DO NOTHING RETURNING id, name, email',
     [name, email, await bcrypt.hash(password, 12)]
@@ -31,7 +26,7 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = clean(req.body)
   const { rows: [user] } = await db.query('SELECT id, name, email, password_hash FROM users WHERE email = $1', [email])
-  if (!user || !await bcrypt.compare(password, user.password_hash)) return res.status(401).json({ error: 'Email or password is incorrect.' })
+  if (!user || !await bcrypt.compare(password, user.password_hash)) return res.status(401).json({ error: 'Wrong email or password, try again.' })
   const sid = crypto.randomUUID()
   await db.query('INSERT INTO sessions (id, user_id) VALUES ($1, $2)', [sid, user.id])
   res.cookie('sid', sid, { httpOnly: true, sameSite: 'lax', maxAge: 7 * 864e5 })
@@ -40,7 +35,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.use('/api', async (req, res, next) => {
   req.sid = req.headers.cookie?.match(/sid=([\w-]+)/)?.[1]
-  req.user = req.sid && await one('SELECT u.id, u.name, u.email FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.id = $1', [req.sid])
+  req.user = req.sid && await one('SELECT u.id, u.name, u.email FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.id = $1 AND s.created_at > NOW() - INTERVAL \'7 days\'', [req.sid])
   if (!req.user) return res.status(401).json({ error: 'Please sign in.' })
   next()
 })

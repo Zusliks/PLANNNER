@@ -7,6 +7,12 @@ export const when = due => {
   return 'Upcoming'
 }
 
+export const Title = ({ text, small }) => (
+  <h1 className={small ? 'title small' : 'title'}>
+    {text.split(' ').map((word, i) => <b key={i}>{word.split('').map((c, j) => <span key={j}>{c}</span>)} </b>)}
+  </h1>
+)
+
 export const label = due => {
   if (due === day(0)) return 'Today'
   if (due === day(1)) return 'Tomorrow'

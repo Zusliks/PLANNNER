@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Title } from './BITS.jsx'
 
 export const STATUS = { todo: 'To do', doing: 'In progress', done: 'Done' }
 
@@ -24,7 +25,7 @@ export default function TASK({ task, store, close }) {
     <div className="overlay" onClick={close}>
       <form className="dialog" onClick={e => e.stopPropagation()} onSubmit={save}>
         <header>
-          <h2>{task.id ? 'Edit task' : 'New task'}</h2>
+          <Title text={task.id ? 'EDIT TASK' : 'NEW TASK'} small />
           <button type="button" onClick={close}>X</button>
         </header>
         <fieldset disabled={!can}>
@@ -40,14 +41,12 @@ export default function TASK({ task, store, close }) {
             Due date
             <input name="due" type="date" defaultValue={task.due} />
           </label>
-          <label>
-            Priority
-            <select name="priority" defaultValue={task.priority}>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
-            </select>
-          </label>
+          <span className="label">Priority</span>
+          <div className="line">
+            <label className="pick"><input type="radio" name="priority" value="High" defaultChecked={task.priority === 'High'} /> High</label>
+            <label className="pick"><input type="radio" name="priority" value="Medium" defaultChecked={task.priority === 'Medium'} /> Medium</label>
+            <label className="pick"><input type="radio" name="priority" value="Low" defaultChecked={task.priority === 'Low'} /> Low</label>
+          </div>
           {project && (
             <label>
               Assignee

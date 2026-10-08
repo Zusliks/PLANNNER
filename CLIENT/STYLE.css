@@ -2,200 +2,664 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   font-size: 15px;
-  background: #f4f4f4;
-  color: #222;
+  color: white;
+  background: #0d0d0d;
+  overflow-x: hidden;
 }
 
 a {
-  color: #222;
+  color: inherit;
 }
 
-h1 {
-  margin: 10px 0 5px 0;
-  font-size: 26px;
+h1, h2, h3, .btn, .tag, .nav, label, .label, .tabs button, .stat, .stamp, .who {
+  font-family: 'Arial Black', Impact, sans-serif;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 10px 0 20px 0;
+  font-size: 24px;
+  font-style: italic;
 }
 
 h3 {
-  margin: 25px 0 8px 0;
-  font-size: 16px;
+  display: inline-block;
+  margin: 20px 0 8px 0;
+  padding: 2px 10px;
+  color: #e3171e;
+  font-size: 14px;
+  font-style: italic;
+  border-bottom: 4px solid #e3171e;
+}
+
+.title {
+  margin: 10px 0;
+  font-size: 80px;
+}
+
+.title.small {
+  font-size: 40px;
+}
+
+.title b {
+  display: inline-block;
+  margin-right: 0.3em;
+  white-space: nowrap;
+}
+
+.title span {
+  display: inline-block;
+  margin-right: -3px;
+  padding: 0 6px;
+  border: 2px solid black;
+  background: black;
+  color: white;
+  transform: rotate(-5deg);
+}
+
+.title span:nth-child(even) {
+  background: white;
+  color: black;
+  font-style: italic;
+  transform: rotate(4deg) translateY(5px);
+}
+
+.title span:nth-child(3n) {
+  background: #e3171e;
+  color: white;
+  transform: rotate(-2deg) scale(0.9);
+}
+
+.title span:nth-child(5n) {
+  background: white;
+  color: #e3171e;
+  transform: rotate(7deg);
 }
 
 input, select, textarea {
-  padding: 7px;
-  border: 1px solid #999;
+  padding: 9px;
+  border: 3px solid black;
   background: white;
+  color: black;
   font-family: Arial, sans-serif;
   font-size: 14px;
+  font-weight: bold;
 }
 
-.btn {
-  padding: 8px 14px;
-  margin-right: 5px;
-  border: 1px solid #c4410f;
-  background: #e8590c;
-  color: white;
-  font-size: 14px;
+input[type=checkbox] {
+  appearance: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  transform: rotate(45deg);
   cursor: pointer;
 }
 
+input[type=checkbox]:checked {
+  background: #e3171e;
+}
+
+.btn {
+  margin-left: 10px;
+  padding: 10px 18px;
+  border: 3px solid black;
+  background: #e3171e;
+  color: white;
+  font-size: 15px;
+  font-style: italic;
+  transform: skew(-12deg);
+  box-shadow: 5px 5px 0 black;
+  cursor: pointer;
+}
+
+.btn.black {
+  background: black;
+  color: white;
+  box-shadow: 5px 5px 0 #9e0f14;
+}
+
 .btn.white {
-  border: 1px solid #999;
   background: white;
-  color: #222;
+  color: black;
 }
 
 .btn.red {
-  border: 1px solid #999;
-  background: white;
-  color: red;
+  background: black;
+  color: white;
+  box-shadow: 5px 5px 0 #e3171e;
 }
 
 .msg {
   padding: 8px;
-  border: 1px solid #e8590c;
-  background: #fff3ec;
+  background: black;
+  color: white;
+  font-weight: bold;
 }
 
 .nav {
-  padding: 15px 30px;
-  border-bottom: 1px solid #999;
+  padding: 16px 30px 30px 30px;
+  background: black;
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+}
+
+.nav b {
+  display: inline-block;
+  margin-right: 20px;
+  padding: 2px 8px;
   background: white;
+  color: black;
+  transform: rotate(-3deg);
 }
 
 .nav a {
-  margin-left: 20px;
+  display: inline-block;
+  margin-right: 22px;
+  font-style: italic;
   text-decoration: none;
 }
 
 .nav a.on {
-  border-bottom: 2px solid #e8590c;
-  font-weight: bold;
+  padding: 3px 12px;
+  background: #e3171e;
+  transform: skew(-12deg) rotate(-3deg);
 }
 
-.nav .right {
+.nav .user {
   float: right;
+  font-size: 13px;
 }
 
 .page {
-  max-width: 950px;
-  margin: 0 auto;
-  padding: 20px;
+  min-height: calc(100vh - 50px);
+  margin-top: -20px;
+  padding: 40px 50px;
+  box-sizing: border-box;
 }
 
-.add {
+.page.today, .page.inbox {
   display: flex;
-  gap: 5px;
-  margin: 20px 0;
+  gap: 60px;
 }
 
-.add input[name=title], .add input[name=name] {
+.left {
+  width: 380px;
+  flex: none;
+}
+
+.right {
   flex: 1;
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.right h3 {
+  border: 0;
+  background: black;
+  color: white;
+  transform: skew(-12deg);
+}
+
+.page.today {
+  background:
+    radial-gradient(rgba(0, 0, 0, 0.25) 2px, transparent 2.5px) 0 0 / 14px 14px,
+    linear-gradient(100deg, #e3171e 30%, white 30%, white 31.5%, #0d0d0d 31.5%);
+}
+
+.page.projects {
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 2.5px) 0 0 / 14px 14px,
+    linear-gradient(170deg, #0d0d0d 30%, #e3171e 30%, #e3171e 62%, #0d0d0d 62%);
+}
+
+.page.project {
+  color: black;
+  background: linear-gradient(176deg, #e3171e 180px, #f3eee5 180px);
+}
+
+.page.inbox {
+  background:
+    radial-gradient(rgba(0, 0, 0, 0.25) 2px, transparent 2.5px) 0 0 / 14px 14px,
+    linear-gradient(172deg, #e3171e 72%, #0d0d0d 72%);
+}
+
+.date {
+  display: inline-block;
+  margin: 0;
+  padding: 4px 12px;
+  background: white;
+  color: black;
+  font-weight: bold;
+  transform: rotate(-2deg) skew(-10deg);
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.stat {
+  width: 90px;
+  padding: 8px 12px;
+  border: 3px solid black;
+  background: black;
+  font-size: 11px;
+  transform: skew(-10deg);
+}
+
+.stat b {
+  display: block;
+  font-size: 38px;
+}
+
+.stat.white {
+  background: white;
+  color: black;
+}
+
+.stat.red {
+  background: #9e0f14;
+}
+
+.label {
+  display: inline-block;
+  padding: 2px 10px;
+  background: black;
+  color: white;
+  font-size: 11px;
+  transform: skew(-12deg);
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 14px 0;
+}
+
+.line input:not([type=radio]) {
+  flex: 1;
+}
+
+.pick {
+  padding: 3px 10px;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  font-size: 11px;
+  transform: skew(-12deg);
+  cursor: pointer;
+}
+
+.pick input {
+  display: none;
+}
+
+.pick:has(input:checked) {
+  background: black;
+  color: white;
 }
 
 .tabs {
   display: flex;
-  gap: 5px;
+  gap: 10px;
   margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #999;
 }
 
 .tabs button {
-  padding: 6px 12px;
-  border: 1px solid #999;
-  background: white;
+  padding: 5px 14px;
+  border: 2px solid white;
+  background: black;
+  color: white;
+  font-style: italic;
+  transform: skew(-12deg);
   cursor: pointer;
 }
 
 .tabs button.on {
-  background: #e8590c;
+  background: white;
+  color: black;
+}
+
+.tabs select {
+  border: 0;
+  background: none;
   color: white;
+  font-size: 12px;
 }
 
 .tabs select:first-of-type {
   margin-left: auto;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.tabs option {
+  color: black;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 12px;
+  padding: 10px 20px;
+  border: 3px solid black;
   background: white;
+  color: black;
+  transform: skew(-8deg);
+  box-shadow: 6px 6px 0 #555;
 }
 
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
+.row:nth-child(even) {
+  margin-left: -8px;
 }
 
-th {
-  background: #eee;
-}
-
-td small {
-  color: #777;
-}
-
-td.check {
-  width: 20px;
-}
-
-.click {
+.text {
+  flex: 1;
   cursor: pointer;
 }
 
-.click:hover {
-  text-decoration: underline;
+.text b {
+  display: block;
+  font-size: 17px;
 }
 
-.done .click {
+.text small {
+  color: #888;
+}
+
+.row.done b {
   color: #999;
   text-decoration: line-through;
 }
 
-.late {
-  color: red;
+.due {
+  width: 90px;
+  font-weight: bold;
+  font-style: italic;
 }
 
-.high {
-  color: #e8590c;
+.late {
+  color: #e3171e;
   font-weight: bold;
 }
 
-.split {
-  display: flex;
-  gap: 20px;
+.stamp {
+  position: absolute;
+  top: -12px;
+  right: -10px;
+  padding: 2px 8px;
+  background: #e3171e;
+  color: white;
+  font-size: 12px;
+  transform: rotate(9deg);
 }
 
-.split > div:first-child {
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  font-size: 11px;
+  font-style: italic;
+  transform: skew(-14deg);
+}
+
+.tag.High {
+  background: #e3171e;
+  color: white;
+}
+
+.tag.Medium {
+  background: black;
+  color: white;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.pcard {
+  width: 330px;
+  padding: 25px 35px;
+  border: 3px solid black;
+  background: white;
+  color: black;
+  box-shadow: 8px 8px 0 black;
+  transform: rotate(2deg);
+  cursor: pointer;
+}
+
+.pcard.red {
+  background: #e3171e;
+  color: white;
+  transform: rotate(-2deg);
+}
+
+.pcard h3 {
+  display: block;
+  margin: 5px 0 20px 0;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font-size: 28px;
+}
+
+.bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.bar i {
+  width: 24px;
+  height: 14px;
+  background: #f3eee5;
+  transform: skew(-20deg);
+}
+
+.bar i.on {
+  background: #e3171e;
+}
+
+.pcard.red .bar i {
+  background: #9e0f14;
+}
+
+.pcard.red .bar i.on {
+  background: white;
+}
+
+.pcard.new {
+  border: 3px dashed white;
+  background: none;
+  color: white;
+  box-shadow: none;
+  cursor: default;
+}
+
+.pcard.new input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+}
+
+.pcard.new .btn {
+  margin: 0;
+}
+
+.top {
+  color: white;
+}
+
+.page.project > p {
+  margin: 30px 0;
+  font-weight: bold;
+}
+
+.board {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.col {
   flex: 1;
+}
+
+.col h3 {
+  border: 0;
+  background: black;
+  color: white;
+  transform: skew(-12deg) rotate(-2deg);
+}
+
+.col h3.doing {
+  background: #e3171e;
+}
+
+.col h3.done {
+  border: 2px solid black;
+  background: white;
+  color: black;
+}
+
+.card {
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border: 3px solid black;
+  background: white;
+  transform: skew(-5deg);
+  box-shadow: 6px 6px 0 black;
+  cursor: pointer;
+}
+
+.card b {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.card div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card.done b {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.who {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 50%;
+  background: black;
+  color: white;
+  font-size: 10px;
+  text-align: center;
 }
 
 .box {
   width: 230px;
-  padding: 10px;
-  border: 1px solid #999;
-  background: white;
+  padding: 20px;
+  background: black;
+  color: white;
+  transform: rotate(2deg);
 }
 
 .box h3 {
   margin-top: 0;
+  border: 0;
+  background: #e3171e;
+  color: white;
+  transform: skew(-12deg);
+}
+
+.box small {
+  color: #999;
+}
+
+.invite {
+  padding: 30px 40px;
+  border: 3px solid black;
+  background: white;
+  color: black;
+  box-shadow: 10px 10px 0 black;
+  transform: rotate(-3deg);
+}
+
+.invite h2 {
+  margin: 0 0 5px 0;
+  font-size: 40px;
+}
+
+.invite small {
+  display: block;
+  margin-bottom: 20px;
+  color: #888;
+}
+
+.invite .btn {
+  margin: 0 15px 0 0;
+}
+
+.invite.small {
+  margin-top: 40px;
+  padding: 15px 25px;
+  background: black;
+  color: white;
+  box-shadow: 8px 8px 0 #9e0f14;
+  transform: rotate(-1deg);
+}
+
+.invite.small h2 {
+  font-size: 22px;
+}
+
+.auth {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-height: 100vh;
+  background:
+    radial-gradient(rgba(0, 0, 0, 0.25) 2px, transparent 2.5px) 0 0 / 14px 14px,
+    linear-gradient(105deg, #e3171e 55%, white 55%, white 56.5%, #0d0d0d 56.5%);
+}
+
+.auth .intro {
+  padding: 20px;
+}
+
+.auth .intro .title {
+  font-size: 64px;
+  white-space: nowrap;
 }
 
 .auth form {
   width: 340px;
-  margin: 80px auto;
-  padding: 20px;
-  border: 1px solid #999;
+  padding: 25px;
+  border: 3px solid black;
   background: white;
+  color: black;
+  box-shadow: 10px 10px 0 #e3171e;
+  transform: rotate(-2deg);
 }
 
 .auth label, .dialog label {
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  font-size: 11px;
 }
 
-.auth input, .dialog input, .dialog select, .dialog textarea {
+.auth input, .dialog input:not([type=radio]), .dialog select, .dialog textarea {
   display: block;
   width: 100%;
   box-sizing: border-box;
@@ -204,6 +668,7 @@ td.check {
 
 .auth .btn {
   width: 100%;
+  margin: 0 0 15px 0;
 }
 
 .overlay {
@@ -212,25 +677,32 @@ td.check {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.65);
+  overflow: auto;
 }
 
 .dialog {
-  width: 450px;
-  margin: 60px auto;
-  padding: 20px;
-  border: 1px solid #333;
+  width: 460px;
+  margin: 40px auto;
+  padding: 25px 30px;
+  border: 4px solid black;
   background: white;
+  color: black;
+  box-shadow: 16px 16px 0 #e3171e;
+  transform: rotate(-1deg);
 }
 
 .dialog header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
 }
 
 .dialog header button {
-  border: 1px solid #999;
-  background: white;
+  border: 0;
+  background: none;
+  font-size: 22px;
+  font-weight: bold;
   cursor: pointer;
 }
 
@@ -240,34 +712,67 @@ td.check {
 }
 
 .dialog footer {
-  text-align: right;
+  margin-top: 15px;
 }
 
-@media (max-width: 700px) {
+.dialog footer .btn {
+  margin: 0 10px 0 0;
+}
+
+@media (max-width: 800px) {
   .nav {
-    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    padding: 20px 10px 12px 10px;
+    clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .nav b, .nav .user {
+    display: none;
   }
 
   .nav a {
-    margin-left: 10px;
+    margin-right: 8px;
+    font-size: 13px;
   }
 
-  .nav .right {
-    float: none;
-    display: block;
-    margin-top: 10px;
+  .page {
+    margin-top: 0;
+    padding: 20px 15px 90px 15px;
   }
 
-  .add, .tabs, .split {
+  .page.today, .page.inbox, .board, .auth {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .page.today {
+    background:
+      radial-gradient(rgba(0, 0, 0, 0.25) 2px, transparent 2.5px) 0 0 / 14px 14px,
+      linear-gradient(170deg, #e3171e 35%, #0d0d0d 35%);
+  }
+
+  .left, .box, .pcard, .auth form, .dialog {
+    width: auto;
+  }
+
+  .title, .auth .intro .title {
+    font-size: 48px;
+  }
+
+  .tabs {
     flex-wrap: wrap;
   }
 
-  .box, .auth form, .dialog {
-    width: auto;
-    margin: 20px 10px;
+  .row {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  td small {
-    display: none;
+  .dialog {
+    margin: 20px 10px;
   }
 }
