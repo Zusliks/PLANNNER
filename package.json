@@ -5,10 +5,7 @@
   "scripts": {
     "dev": "vite",
     "server": "node --watch SERVER/SERVER.js",
-    "start": "node SERVER/SERVER.js",
-    "db": "psql -U postgres -d plannner -f SERVER/SCHEMA.sql",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

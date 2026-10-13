@@ -3,137 +3,170 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import pg from 'pg'
 
-const db = new pg.Pool({ connectionString: process.env.DATABASE_URL })
-const app = express().use(express.json())
-const port = process.env.PORT || 3000
-const clean = ({ name, email, password } = {}) => ({ name: String(name || '').trim(), email: String(email || '').trim().toLowerCase(), password: String(password || '') })
-const one = async (sql, args) => (await db.query(sql, args)).rows[0]
-const member = (project, user) => one('SELECT 1 FROM members WHERE project_id = $1 AND user_id = $2', [project, user])
-const MINE = 'SELECT project_id FROM members WHERE user_id = $1'
 pg.types.setTypeParser(1082, v => v)
+const db = new pg.Pool({ connectionString: process.env.DATABASE_URL })
+const q = async (sql, args) => (await db.query(sql, args)).rows
+
+await db.query(`
+  create table if not exists users (id bigserial primary key, name varchar(120) not null, email varchar(255) unique not null, password_hash text not null, created_at timestamptz default now());
+  create table if not exists sessions (id text primary key, user_id bigint not null references users on delete cascade, created_at timestamptz default now());
+  create table if not exists projects (id bigserial primary key, name varchar(120) not null, owner_id bigint not null references users on delete cascade);
+  create table if not exists members (project_id bigint references projects on delete cascade, user_id bigint references users on delete cascade, primary key (project_id, user_id));
+  create table if not exists tasks (id bigserial primary key, title varchar(200) not null, description text not null default '', due date, priority varchar(6) not null default 'Medium' check (priority in ('Low', 'Medium', 'High')), status varchar(5) not null default 'todo' check (status in ('todo', 'doing', 'done')), project_id bigint references projects on delete cascade, assignee_id bigint references users on delete set null, creator_id bigint not null references users on delete cascade);
+  create table if not exists invites (id bigserial primary key, project_id bigint not null references projects on delete cascade, from_id bigint not null references users on delete cascade, to_id bigint not null references users on delete cascade, status varchar(8) not null default 'pending', created_at date not null default current_date);
+`)
+
+const app = express()
+app.use(express.json())
+
+const mine = 'select project_id from members where user_id = $1'
+const isMember = async (project, user) => (await q('select 1 from members where project_id = $1 and user_id = $2', [project, user])).length > 0
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password } = clean(req.body)
-  if (!name || name.length > 120 || email.length > 255 || !/^\S+@\S+\.\S+$/.test(email) || password.length < 8) return res.status(400).json({ error: 'Name, a valid email and a password of at least 8 characters are required.' })
-  const { rows: [user] } = await db.query(
-    'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) ON CONFLICT (email) DO NOTHING RETURNING id, name, email',
-    [name, email, await bcrypt.hash(password, 12)]
-  )
-  if (!user) return res.status(409).json({ error: 'An account with this email already exists.' })
+  const name = String(req.body.name || '').trim()
+  const email = String(req.body.email || '').trim().toLowerCase()
+  const password = String(req.body.password || '')
+  if (!name || name.length > 120 || email.length > 255 || !/^\S+@\S+\.\S+$/.test(email) || password.length < 8)
+    return res.status(400).json({ error: 'Name, email and a password with 8+ characters are needed.' })
+
+  const hash = await bcrypt.hash(password, 12)
+  const [user] = await q('insert into users (name, email, password_hash) values ($1, $2, $3) on conflict (email) do nothing returning id, name, email', [name, email, hash])
+  if (!user) return res.status(409).json({ error: 'That email already has an account.' })
   res.status(201).json({ user })
 })
 
 app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = clean(req.body)
-  const { rows: [user] } = await db.query('SELECT id, name, email, password_hash FROM users WHERE email = $1', [email])
-  if (!user || !await bcrypt.compare(password, user.password_hash)) return res.status(401).json({ error: 'Wrong email or password, try again.' })
+  const email = String(req.body.email || '').trim().toLowerCase()
+  const [user] = await q('select * from users where email = $1', [email])
+  if (!user || !(await bcrypt.compare(String(req.body.password || ''), user.password_hash)))
+    return res.status(401).json({ error: 'Wrong email or password, try again.' })
+
   const sid = crypto.randomUUID()
-  await db.query('INSERT INTO sessions (id, user_id) VALUES ($1, $2)', [sid, user.id])
-  res.cookie('sid', sid, { httpOnly: true, sameSite: 'lax', maxAge: 7 * 864e5 })
+  await q('insert into sessions (id, user_id) values ($1, $2)', [sid, user.id])
+  res.cookie('sid', sid, { httpOnly: true, sameSite: 'lax', maxAge: 7 * 24 * 3600 * 1000 })
   res.json({ user: { id: user.id, name: user.name, email: user.email } })
 })
 
 app.use('/api', async (req, res, next) => {
   req.sid = req.headers.cookie?.match(/sid=([\w-]+)/)?.[1]
-  req.user = req.sid && await one('SELECT u.id, u.name, u.email FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.id = $1 AND s.created_at > NOW() - INTERVAL \'7 days\'', [req.sid])
+  if (req.sid) [req.user] = await q("select u.id, u.name, u.email from sessions s join users u on u.id = s.user_id where s.id = $1 and s.created_at > now() - interval '7 days'", [req.sid])
   if (!req.user) return res.status(401).json({ error: 'Please sign in.' })
   next()
 })
 
 app.get('/api/me', (req, res) => res.json({ user: req.user }))
 
+app.delete('/api/me', async (req, res) => {
+  await q('delete from users where id = $1', [req.user.id])
+  res.clearCookie('sid').json({ ok: true })
+})
+
 app.post('/api/auth/logout', async (req, res) => {
-  await db.query('DELETE FROM sessions WHERE id = $1', [req.sid])
+  await q('delete from sessions where id = $1', [req.sid])
   res.clearCookie('sid').json({ ok: true })
 })
 
 app.get('/api/data', async (req, res) => {
-  const all = async sql => (await db.query(sql, [req.user.id])).rows
+  const me = [req.user.id]
   res.json({
-    people: await all(`SELECT id, name, email FROM users WHERE id = $1 OR id IN (SELECT user_id FROM members WHERE project_id IN (${MINE})) OR id IN (SELECT from_id FROM invites WHERE to_id = $1)`),
-    projects: await all(`SELECT p.id, p.name, p.owner_id AS owner, array_agg(m.user_id) AS members FROM projects p JOIN members m ON m.project_id = p.id WHERE p.id IN (${MINE}) OR p.id IN (SELECT project_id FROM invites WHERE to_id = $1) GROUP BY p.id ORDER BY p.id`),
-    tasks: await all(`SELECT id, title, description AS "desc", COALESCE(due::text, '') AS due, priority, status, project_id AS project, assignee_id AS assignee, creator_id AS creator FROM tasks WHERE (project_id IS NULL AND creator_id = $1) OR project_id IN (${MINE}) ORDER BY id`),
-    invites: await all(`SELECT i.id, i.project_id AS project, i.from_id AS "from", u.email AS "to", i.status, i.created_at AS date FROM invites i JOIN users u ON u.id = i.to_id WHERE i.to_id = $1 OR i.project_id IN (${MINE}) ORDER BY i.id DESC`)
+    people: await q(`select id, name, email from users where id = $1 or id in (select user_id from members where project_id in (${mine})) or id in (select from_id from invites where to_id = $1)`, me),
+    projects: await q(`select p.id, p.name, p.owner_id as owner, array_agg(m.user_id) as members from projects p join members m on m.project_id = p.id where p.id in (${mine}) or p.id in (select project_id from invites where to_id = $1) group by p.id order by p.id`, me),
+    tasks: await q(`select id, title, description as "desc", coalesce(due::text, '') as due, priority, status, project_id as project, assignee_id as assignee, creator_id as creator from tasks where (project_id is null and creator_id = $1) or project_id in (${mine}) order by id`, me),
+    invites: await q(`select i.id, i.project_id as project, i.from_id as "from", u.email as "to", i.status, i.created_at as date from invites i join users u on u.id = i.to_id where i.to_id = $1 or i.project_id in (${mine}) order by i.id desc`, me)
   })
 })
 
-const task = b => ({ title: String(b.title || '').trim(), desc: String(b.desc || ''), due: b.due || null, priority: b.priority, status: b.status, project: b.project || null, assignee: b.assignee || null })
+const fields = b => [String(b.title || '').trim(), String(b.desc || ''), b.due || null, b.priority, b.status, b.project || null, b.assignee || null]
 
-const invalid = async (t, user) => {
-  if (!t.title || t.title.length > 200) return 'Title is required.'
-  if (!['Low', 'Medium', 'High'].includes(t.priority) || !['todo', 'doing', 'done'].includes(t.status)) return 'Invalid priority or status.'
-  if (t.due && !/^\d{4}-\d{2}-\d{2}$/.test(t.due)) return 'Invalid date.'
-  if (t.project && !await member(t.project, user.id)) return 'You are not in this project.'
-  if (t.assignee && !(t.project ? await member(t.project, t.assignee) : t.assignee === user.id)) return 'Assignee must be a project member.'
+async function bad([title, , due, priority, status, project, assignee], me) {
+  if (!title || title.length > 200) return 'Task needs a title (max 200 characters).'
+  if (!['Low', 'Medium', 'High'].includes(priority)) return 'Bad priority.'
+  if (!['todo', 'doing', 'done'].includes(status)) return 'Bad status.'
+  if (due && !/^\d{4}-\d{2}-\d{2}$/.test(due)) return 'Bad date.'
+  if (project && !(await isMember(project, me))) return 'You are not in this project.'
+  if (assignee && !(project ? await isMember(project, assignee) : assignee == me)) return 'Assignee must be in the project.'
 }
 
-const allowed = async (id, user) => {
-  const t = await one('SELECT t.*, p.owner_id FROM tasks t LEFT JOIN projects p ON p.id = t.project_id WHERE t.id = $1', [id])
-  if (!t) return
-  if (!t.project_id) return t.creator_id === user.id && t
-  return await member(t.project_id, user.id) && [t.owner_id, t.creator_id, t.assignee_id].includes(user.id) && t
+async function editable(id, me) {
+  const [t] = await q('select t.*, p.owner_id from tasks t left join projects p on p.id = t.project_id where t.id = $1', [id])
+  if (!t) return null
+  if (!t.project_id) return t.creator_id == me ? t : null
+  if (!(await isMember(t.project_id, me))) return null
+  return [t.owner_id, t.creator_id, t.assignee_id].includes(me) ? t : null
 }
 
 app.post('/api/tasks', async (req, res) => {
-  const t = task(req.body)
-  const error = await invalid(t, req.user)
-  if (error) return res.status(400).json({ error })
-  await db.query('INSERT INTO tasks (title, description, due, priority, status, project_id, assignee_id, creator_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [...Object.values(t), req.user.id])
+  const t = fields(req.body)
+  const err = await bad(t, req.user.id)
+  if (err) return res.status(400).json({ error: err })
+  await q('insert into tasks (title, description, due, priority, status, project_id, assignee_id, creator_id) values ($1, $2, $3, $4, $5, $6, $7, $8)', [...t, req.user.id])
   res.status(201).json({ ok: true })
 })
 
 app.put('/api/tasks/:id', async (req, res) => {
-  const old = await allowed(req.params.id, req.user)
-  if (!old) return res.status(403).json({ error: 'You cannot change this task.' })
-  const t = task({ ...req.body, project: old.project_id })
-  const error = await invalid(t, req.user)
-  if (error) return res.status(400).json({ error })
-  await db.query('UPDATE tasks SET title = $1, description = $2, due = $3, priority = $4, status = $5, project_id = $6, assignee_id = $7 WHERE id = $8', [...Object.values(t), old.id])
+  const old = await editable(req.params.id, req.user.id)
+  if (!old) return res.status(403).json({ error: "You can't change this task." })
+  const t = fields({ ...req.body, project: old.project_id })
+  const err = await bad(t, req.user.id)
+  if (err) return res.status(400).json({ error: err })
+  await q('update tasks set title = $1, description = $2, due = $3, priority = $4, status = $5, project_id = $6, assignee_id = $7 where id = $8', [...t, old.id])
   res.json({ ok: true })
 })
 
 app.delete('/api/tasks/:id', async (req, res) => {
-  const old = await allowed(req.params.id, req.user)
-  if (!old) return res.status(403).json({ error: 'You cannot delete this task.' })
-  await db.query('DELETE FROM tasks WHERE id = $1', [old.id])
+  const old = await editable(req.params.id, req.user.id)
+  if (!old) return res.status(403).json({ error: "You can't delete this task." })
+  await q('delete from tasks where id = $1', [old.id])
   res.json({ ok: true })
 })
 
 app.post('/api/projects', async (req, res) => {
   const name = String(req.body.name || '').trim()
-  if (!name || name.length > 120) return res.status(400).json({ error: 'Project name is required.' })
-  const { id } = await one('INSERT INTO projects (name, owner_id) VALUES ($1, $2) RETURNING id', [name, req.user.id])
-  await db.query('INSERT INTO members (project_id, user_id) VALUES ($1, $2)', [id, req.user.id])
-  res.status(201).json({ id })
+  if (!name || name.length > 120) return res.status(400).json({ error: 'Project needs a name.' })
+  const [p] = await q('insert into projects (name, owner_id) values ($1, $2) returning id', [name, req.user.id])
+  await q('insert into members (project_id, user_id) values ($1, $2)', [p.id, req.user.id])
+  res.status(201).json({ id: p.id })
+})
+
+app.delete('/api/projects/:id', async (req, res) => {
+  const gone = await q('delete from projects where id = $1 and owner_id = $2 returning id', [req.params.id, req.user.id])
+  if (!gone.length) return res.status(403).json({ error: 'Only the owner can delete a project.' })
+  res.json({ ok: true })
 })
 
 app.post('/api/projects/:id/invites', async (req, res) => {
-  const p = await one('SELECT id FROM projects WHERE id = $1 AND owner_id = $2', [req.params.id, req.user.id])
+  const [p] = await q('select id from projects where id = $1 and owner_id = $2', [req.params.id, req.user.id])
   if (!p) return res.status(403).json({ error: 'Only the owner can invite.' })
-  const to = await one('SELECT id FROM users WHERE email = $1', [clean(req.body).email])
+
+  const [to] = await q('select id from users where email = $1', [String(req.body.email || '').trim().toLowerCase()])
   if (!to) return res.status(404).json({ error: 'User not found' })
-  if (await member(p.id, to.id)) return res.status(409).json({ error: 'Already a member' })
-  if (await one("SELECT 1 FROM invites WHERE project_id = $1 AND to_id = $2 AND status = 'pending'", [p.id, to.id])) return res.status(409).json({ error: 'Already invited' })
-  await db.query('INSERT INTO invites (project_id, from_id, to_id) VALUES ($1, $2, $3)', [p.id, req.user.id, to.id])
+  if (await isMember(p.id, to.id)) return res.status(409).json({ error: 'Already a member' })
+
+  const pending = await q("select 1 from invites where project_id = $1 and to_id = $2 and status = 'pending'", [p.id, to.id])
+  if (pending.length) return res.status(409).json({ error: 'Already invited' })
+
+  await q('insert into invites (project_id, from_id, to_id) values ($1, $2, $3)', [p.id, req.user.id, to.id])
   res.status(201).json({ ok: true })
 })
 
 app.post('/api/invites/:id', async (req, res) => {
-  const i = await one("UPDATE invites SET status = $1 WHERE id = $2 AND to_id = $3 AND status = 'pending' RETURNING project_id", [req.body.accept ? 'accepted' : 'declined', req.params.id, req.user.id])
-  if (!i) return res.status(404).json({ error: 'Invite not found.' })
-  if (req.body.accept) await db.query('INSERT INTO members (project_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [i.project_id, req.user.id])
+  const yes = !!req.body.accept
+  const [inv] = await q("update invites set status = $1 where id = $2 and to_id = $3 and status = 'pending' returning project_id", [yes ? 'accepted' : 'declined', req.params.id, req.user.id])
+  if (!inv) return res.status(404).json({ error: 'Invite not found.' })
+  if (yes) await q('insert into members (project_id, user_id) values ($1, $2) on conflict do nothing', [inv.project_id, req.user.id])
   res.json({ ok: true })
 })
 
 app.delete('/api/invites/:id', async (req, res) => {
-  await db.query("DELETE FROM invites WHERE id = $1 AND status = 'pending' AND project_id IN (SELECT id FROM projects WHERE owner_id = $2)", [req.params.id, req.user.id])
+  await q("delete from invites where id = $1 and status = 'pending' and project_id in (select id from projects where owner_id = $2)", [req.params.id, req.user.id])
   res.json({ ok: true })
 })
 
-app.use((err, _req, res, _next) => {
-  if (err.code === '22P02') return res.status(400).json({ error: 'Invalid input.' })
+app.use((err, req, res, next) => {
+  if (err.code == '22P02') return res.status(400).json({ error: 'Bad id.' })
   console.error(err)
   res.status(500).json({ error: 'Server error.' })
 })
 
-app.listen(port, () => console.log(`API on http://localhost:${port}`))
+const port = process.env.PORT || 3000
+app.listen(port, () => console.log('api running on ' + port))

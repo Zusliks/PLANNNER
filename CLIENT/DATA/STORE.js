@@ -1,42 +1,53 @@
 import { useEffect, useState } from 'react'
 
-export const day = n => {
-  const d = new Date()
+export function day(n = 0) {
+  let d = new Date()
   d.setDate(d.getDate() + n)
   return d.toLocaleDateString('sv')
 }
 
-export const done = t => t.status === 'done'
+export const done = t => t.status == 'done'
 
-export const api = async (url, method = 'GET', body) => {
-  const res = await fetch('/api' + url, { method, headers: { 'Content-Type': 'application/json' }, body: body && JSON.stringify(body) })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error || 'Something went wrong.')
+export async function api(url, method = 'GET', body) {
+  let res = await fetch('/api' + url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined
+  })
+  let data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Something broke, try again.')
   return data
 }
 
 export function useStore(me) {
-  const [db, setDb] = useState({ people: [me], projects: [], invites: [], tasks: [] })
+  const [db, setDb] = useState({ people: [], projects: [], invites: [], tasks: [] })
   const load = () => api('/data').then(setDb)
-  const run = (...args) => api(...args).finally(load)
   useEffect(() => { load() }, [])
 
-  const project = id => db.projects.find(p => p.id === id)
+  const send = (url, method, body) => api(url, method, body).finally(load)
+  const project = id => db.projects.find(p => p.id == id)
 
   return {
-    projects: db.projects.filter(p => p.members.includes(me.id)),
     tasks: db.tasks,
-    invites: db.invites.filter(i => i.to === me.email),
-    sent: id => db.invites.filter(i => i.project === id && i.status === 'pending'),
-    person: id => id === me.id ? { ...me, name: 'You' } : db.people.find(p => p.id === id) || { name: '?' },
+    projects: db.projects.filter(p => p.members.includes(me.id)),
+    invites: db.invites.filter(i => i.to == me.email),
+    sent: id => db.invites.filter(i => i.project == id && i.status == 'pending'),
     project,
-    can: t => !t.project || !t.id || [project(t.project)?.owner, t.assignee, t.creator].includes(me.id),
-    invite: (id, email) => run(`/projects/${id}/invites`, 'POST', { email }),
-    answer: (id, yes) => run(`/invites/${id}`, 'POST', { accept: yes }),
-    saveTask: t => run(t.id ? `/tasks/${t.id}` : '/tasks', t.id ? 'PUT' : 'POST', t),
-    toggle: t => run(`/tasks/${t.id}`, 'PUT', { ...t, status: done(t) ? 'todo' : 'done' }),
-    removeTask: id => run(`/tasks/${id}`, 'DELETE'),
-    addProject: name => run('/projects', 'POST', { name }),
-    revoke: id => run(`/invites/${id}`, 'DELETE')
+    person(id) {
+      if (id == me.id) return { ...me, name: 'You' }
+      return db.people.find(p => p.id == id) || { name: '?' }
+    },
+    can(t) {
+      if (!t.id || !t.project) return true
+      return [project(t.project)?.owner, t.assignee, t.creator].includes(me.id)
+    },
+    save: t => t.id ? send('/tasks/' + t.id, 'PUT', t) : send('/tasks', 'POST', t),
+    toggle: t => send('/tasks/' + t.id, 'PUT', { ...t, status: done(t) ? 'todo' : 'done' }),
+    remove: id => send('/tasks/' + id, 'DELETE'),
+    newProject: name => send('/projects', 'POST', { name }),
+    dropProject: id => send('/projects/' + id, 'DELETE'),
+    invite: (id, email) => send(`/projects/${id}/invites`, 'POST', { email }),
+    answer: (id, yes) => send('/invites/' + id, 'POST', { accept: yes }),
+    revoke: id => send('/invites/' + id, 'DELETE')
   }
 }

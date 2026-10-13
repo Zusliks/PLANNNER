@@ -1,24 +1,21 @@
 import { useState } from 'react'
 import { Title } from './BITS.jsx'
 
-export const STATUS = { todo: 'To do', doing: 'In progress', done: 'Done' }
-
 export default function TASK({ task, store, close }) {
   const [error, setError] = useState('')
   const can = store.can(task)
   const project = store.project(task.project)
 
-  const save = e => {
+  function save(e) {
     e.preventDefault()
-    const form = Object.fromEntries(new FormData(e.target))
-    store.saveTask({ ...task, ...form }).then(close, err => setError(err.message))
+    let f = Object.fromEntries(new FormData(e.target))
+    store.save({ ...task, ...f }).then(close, err => setError(err.message))
   }
 
-  const remove = () => {
-    if (confirm('Delete this task?')) {
-      store.removeTask(task.id)
-      close()
-    }
+  function del() {
+    if (!confirm('Delete this task?')) return
+    store.remove(task.id)
+    close()
   }
 
   return (
@@ -43,9 +40,9 @@ export default function TASK({ task, store, close }) {
           </label>
           <span className="label">Priority</span>
           <div className="line">
-            <label className="pick"><input type="radio" name="priority" value="High" defaultChecked={task.priority === 'High'} /> High</label>
-            <label className="pick"><input type="radio" name="priority" value="Medium" defaultChecked={task.priority === 'Medium'} /> Medium</label>
-            <label className="pick"><input type="radio" name="priority" value="Low" defaultChecked={task.priority === 'Low'} /> Low</label>
+            <label className="pick"><input type="radio" name="priority" value="High" defaultChecked={task.priority == 'High'} /> High</label>
+            <label className="pick"><input type="radio" name="priority" value="Medium" defaultChecked={task.priority == 'Medium'} /> Medium</label>
+            <label className="pick"><input type="radio" name="priority" value="Low" defaultChecked={task.priority == 'Low'} /> Low</label>
           </div>
           {project && (
             <label>
@@ -69,7 +66,7 @@ export default function TASK({ task, store, close }) {
         {!can && <p>You can only look at this task.</p>}
         {can && (
           <footer>
-            {task.id && <button type="button" className="btn red" onClick={remove}>Delete</button>}
+            {task.id && <button type="button" className="btn red" onClick={del}>Delete</button>}
             <button type="button" className="btn white" onClick={close}>Cancel</button>
             <button className="btn">Save</button>
           </footer>

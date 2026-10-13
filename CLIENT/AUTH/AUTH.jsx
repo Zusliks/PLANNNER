@@ -2,34 +2,32 @@ import { useState } from 'react'
 import { api } from '../DATA/STORE.js'
 import { Title } from '../UI/BITS.jsx'
 
-export default function AUTH({ onAuth }) {
+export default function AUTH({ onLogin }) {
   const [reg, setReg] = useState(false)
   const [msg, setMsg] = useState('')
 
-  const submit = e => {
+  async function submit(e) {
     e.preventDefault()
-    const form = Object.fromEntries(new FormData(e.target))
-    if (reg && !form.name.trim()) return setMsg('Write your name and try again.')
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) return setMsg('Email must look like xxx@xxx.com, try again.')
-    if (form.password.length < (reg ? 8 : 1)) return setMsg(reg ? 'Password needs 8 characters, try again.' : 'Write your password and try again.')
-    api(reg ? '/auth/register' : '/auth/login', 'POST', form)
-      .then(data => {
-        if (reg) {
-          setReg(false)
-          setMsg('Account created, you can sign in now.')
-        } else {
-          onAuth(data.user)
-        }
-      })
-      .catch(err => setMsg(err.message))
+    let f = Object.fromEntries(new FormData(e.target))
+    if (reg && !f.name.trim()) return setMsg('Write your name and try again.')
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) return setMsg('Email must look like xxx@xxx.com, try again.')
+    if (reg && f.password.length < 8) return setMsg('Password needs 8 characters, try again.')
+    if (!f.password) return setMsg('Write your password and try again.')
+
+    try {
+      let data = await api(reg ? '/auth/register' : '/auth/login', 'POST', f)
+      if (!reg) return onLogin(data.user)
+      setReg(false)
+      setMsg('Account created, you can sign in now.')
+    } catch (err) {
+      setMsg(err.message)
+    }
   }
 
   return (
     <div className="auth">
       <div className="intro">
         <Title text="PLANNER" />
-        <h2>STEAL BACK YOUR TIME.</h2>
-        <p>Tasks, deadlines and shared projects in one place.</p>
       </div>
       <form key={reg} onSubmit={submit} noValidate>
         <Title text={reg ? 'JOIN' : 'SIGN IN'} small />

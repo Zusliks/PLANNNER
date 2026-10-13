@@ -1,24 +1,43 @@
 import { useState } from 'react'
-import { done, day } from '../DATA/STORE.js'
-import { when, Title } from '../UI/BITS.jsx'
-import ROW from '../UI/ROW.jsx'
-
-const GROUPS = ['Overdue', 'Today', 'Upcoming', 'No date']
+import { day, done } from '../DATA/STORE.js'
+import { when, label, Title } from '../UI/BITS.jsx'
 
 export default function TODAY({ store, user, edit, all }) {
-  const [show, setShow] = useState('open')
+  const [tab, setTab] = useState('open')
   const [prio, setPrio] = useState('')
 
-  const add = e => {
+  let tasks = store.tasks
+  if (!all) tasks = tasks.filter(t => done(t) || t.due)
+  const open = tasks.filter(t => !done(t))
+  const finished = tasks.filter(done)
+
+  let list = tab == 'open' ? open : finished
+  if (prio) list = list.filter(t => t.priority == prio)
+  list.sort((a, b) => a.due.localeCompare(b.due))
+
+  function add(e) {
     e.preventDefault()
-    const form = Object.fromEntries(new FormData(e.target))
-    store.saveTask({ ...form, desc: '', status: 'todo', project: null, assignee: user.id })
+    let f = Object.fromEntries(new FormData(e.target))
+    store.save({ ...f, desc: '', status: 'todo', project: null, assignee: user.id })
     e.target.reset()
   }
 
-  const pool = all ? store.tasks : store.tasks.filter(t => done(t) || when(t.due) !== 'No date')
-  const open = pool.filter(t => !done(t))
-  const list = (show === 'done' ? pool.filter(done) : open).filter(t => !prio || t.priority === prio).sort((a, b) => a.due.localeCompare(b.due))
+  const row = t => {
+    let late = !done(t) && t.due && t.due < day()
+    let p = store.project(t.project)
+    return (
+      <div key={t.id} className={done(t) ? 'row done' : 'row'}>
+        <input type="checkbox" checked={done(t)} disabled={!store.can(t)} onChange={() => store.toggle(t)} />
+        <div className="text" onClick={() => edit(t)}>
+          <b>{t.title}</b>
+          <small>{p ? p.name : t.desc}</small>
+        </div>
+        <span className={'tag ' + t.priority}>{t.priority}</span>
+        <span className={late ? 'due late' : 'due'}>{label(t.due)}</span>
+        {late && <span className="stamp">LATE!</span>}
+      </div>
+    )
+  }
 
   return (
     <main className="page today">
@@ -27,9 +46,9 @@ export default function TODAY({ store, user, edit, all }) {
         <Title text={all ? 'ALL TASKS' : 'TODAY'} />
         <h2>Hey {user.name.split(' ')[0]},<br />{open.length} tasks still waiting.</h2>
         <div className="stats">
-          <div className="stat"><b>{open.filter(t => when(t.due) === 'Overdue').length}</b>Overdue</div>
-          <div className="stat white"><b>{open.filter(t => when(t.due) === 'Today').length}</b>Today</div>
-          <div className="stat red"><b>{pool.filter(done).length}</b>Done</div>
+          <div className="stat"><b>{open.filter(t => when(t.due) == 'Overdue').length}</b>Overdue</div>
+          <div className="stat white"><b>{open.filter(t => when(t.due) == 'Today').length}</b>Today</div>
+          <div className="stat red"><b>{finished.length}</b>Done</div>
         </div>
         <form className="add" onSubmit={add}>
           <span className="label">New task</span>
@@ -41,14 +60,15 @@ export default function TODAY({ store, user, edit, all }) {
             <label className="pick"><input type="radio" name="priority" value="High" /> High</label>
             <label className="pick"><input type="radio" name="priority" value="Medium" defaultChecked /> Medium</label>
             <label className="pick"><input type="radio" name="priority" value="Low" /> Low</label>
-            <input name="due" type="date" defaultValue={all ? '' : day(0)} />
+            <input name="due" type="date" defaultValue={all ? '' : day()} />
           </div>
         </form>
       </div>
+
       <div className="right">
         <div className="tabs">
-          <button className={show === 'open' ? 'on' : ''} onClick={() => setShow('open')}>Open {open.length}</button>
-          <button className={show === 'done' ? 'on' : ''} onClick={() => setShow('done')}>Done {pool.filter(done).length}</button>
+          <button className={tab == 'open' ? 'on' : ''} onClick={() => setTab('open')}>Open {open.length}</button>
+          <button className={tab == 'done' ? 'on' : ''} onClick={() => setTab('done')}>Done {finished.length}</button>
           <select value={prio} onChange={e => setPrio(e.target.value)}>
             <option value="">Priority: all</option>
             <option value="High">Priority: high</option>
@@ -56,16 +76,11 @@ export default function TODAY({ store, user, edit, all }) {
             <option value="Low">Priority: low</option>
           </select>
         </div>
-        {list.length === 0 && <p>Nothing here.</p>}
-        {GROUPS.map(g => {
-          const items = list.filter(t => when(t.due) === g)
-          if (items.length === 0) return null
-          return (
-            <div key={g}>
-              <h3>{g}</h3>
-              {items.map(t => <ROW key={t.id} task={t} store={store} edit={edit} />)}
-            </div>
-          )
+        {!list.length && <p>Nothing here.</p>}
+        {['Overdue', 'Today', 'Upcoming', 'No date'].map(g => {
+          let items = list.filter(t => when(t.due) == g)
+          if (!items.length) return null
+          return <div key={g}><h3>{g}</h3>{items.map(row)}</div>
         })}
       </div>
     </main>

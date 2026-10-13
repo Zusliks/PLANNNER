@@ -4,9 +4,9 @@ import { Title } from '../UI/BITS.jsx'
 export default function PROJECTS({ store, user, go }) {
   const shared = store.projects.filter(p => p.owner !== user.id).length
 
-  const create = e => {
+  function create(e) {
     e.preventDefault()
-    store.addProject(e.target.name.value)
+    store.newProject(e.target.name.value)
     e.target.reset()
   }
 

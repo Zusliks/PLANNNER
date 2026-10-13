@@ -7,20 +7,14 @@ body {
   overflow-x: hidden;
 }
 
-a {
-  color: inherit;
-}
+a {color: inherit;}
 
 h1, h2, h3, .btn, .tag, .nav, label, .label, .tabs button, .stat, .stamp, .who {
   font-family: 'Arial Black', Impact, sans-serif;
   text-transform: uppercase;
 }
 
-h2 {
-  margin: 10px 0 20px 0;
-  font-size: 24px;
-  font-style: italic;
-}
+h2 {margin: 10px 0 20px 0; font-size: 24px; font-style: italic;}
 
 h3 {
   display: inline-block;
@@ -32,20 +26,9 @@ h3 {
   border-bottom: 4px solid #e3171e;
 }
 
-.title {
-  margin: 10px 0;
-  font-size: 80px;
-}
-
-.title.small {
-  font-size: 40px;
-}
-
-.title b {
-  display: inline-block;
-  margin-right: 0.3em;
-  white-space: nowrap;
-}
+.title {margin: 10px 0; font-size: 80px;}
+.title.small {font-size: 40px;}
+.title b {display: inline-block; margin-right: 0.3em; white-space: nowrap;}
 
 .title span {
   display: inline-block;
@@ -64,17 +47,8 @@ h3 {
   transform: rotate(4deg) translateY(5px);
 }
 
-.title span:nth-child(3n) {
-  background: #e3171e;
-  color: white;
-  transform: rotate(-2deg) scale(0.9);
-}
-
-.title span:nth-child(5n) {
-  background: white;
-  color: #e3171e;
-  transform: rotate(7deg);
-}
+.title span:nth-child(3n) {background: #e3171e; color: white; transform: rotate(-2deg) scale(0.9);}
+.title span:nth-child(5n) {background: white; color: #e3171e; transform: rotate(7deg);}
 
 input, select, textarea {
   padding: 9px;
@@ -96,9 +70,7 @@ input[type=checkbox] {
   cursor: pointer;
 }
 
-input[type=checkbox]:checked {
-  background: #e3171e;
-}
+input[type=checkbox]:checked {background: #e3171e;}
 
 .btn {
   margin-left: 10px;
@@ -113,29 +85,10 @@ input[type=checkbox]:checked {
   cursor: pointer;
 }
 
-.btn.black {
-  background: black;
-  color: white;
-  box-shadow: 5px 5px 0 #9e0f14;
-}
-
-.btn.white {
-  background: white;
-  color: black;
-}
-
-.btn.red {
-  background: black;
-  color: white;
-  box-shadow: 5px 5px 0 #e3171e;
-}
-
-.msg {
-  padding: 8px;
-  background: black;
-  color: white;
-  font-weight: bold;
-}
+.btn.black {background: black; color: white; box-shadow: 5px 5px 0 #9e0f14;}
+.btn.white {background: white; color: black;}
+.btn.red {background: black; color: white; box-shadow: 5px 5px 0 #e3171e;}
+.msg {padding: 8px; background: black; color: white; font-weight: bold;}
 
 .nav {
   padding: 16px 30px 30px 30px;
@@ -152,23 +105,10 @@ input[type=checkbox]:checked {
   transform: rotate(-3deg);
 }
 
-.nav a {
-  display: inline-block;
-  margin-right: 22px;
-  font-style: italic;
-  text-decoration: none;
-}
-
-.nav a.on {
-  padding: 3px 12px;
-  background: #e3171e;
-  transform: skew(-12deg) rotate(-3deg);
-}
-
-.nav .user {
-  float: right;
-  font-size: 13px;
-}
+.nav a {display: inline-block; margin-right: 22px; font-style: italic; text-decoration: none;}
+.nav a.on {padding: 3px 12px; background: #e3171e; transform: skew(-12deg) rotate(-3deg);}
+.nav .user {float: right; font-size: 13px;}
+.nav .user a {margin: 0 0 0 10px;}
 
 .page {
   min-height: calc(100vh - 50px);
@@ -177,28 +117,10 @@ input[type=checkbox]:checked {
   box-sizing: border-box;
 }
 
-.page.today, .page.inbox {
-  display: flex;
-  gap: 60px;
-}
-
-.left {
-  width: 380px;
-  flex: none;
-}
-
-.right {
-  flex: 1;
-  min-width: 0;
-  padding-right: 20px;
-}
-
-.right h3 {
-  border: 0;
-  background: black;
-  color: white;
-  transform: skew(-12deg);
-}
+.page.today, .page.inbox {display: flex; gap: 60px;}
+.left {width: 380px; flex: none;}
+.right {flex: 1; min-width: 0; padding-right: 20px;}
+.right h3 {border: 0; background: black; color: white; transform: skew(-12deg);}
 
 .page.today {
   background:
@@ -212,10 +134,7 @@ input[type=checkbox]:checked {
     linear-gradient(170deg, #0d0d0d 30%, #e3171e 30%, #e3171e 62%, #0d0d0d 62%);
 }
 
-.page.project {
-  color: black;
-  background: linear-gradient(176deg, #e3171e 180px, #f3eee5 180px);
-}
+.page.project {color: black; background: linear-gradient(176deg, #e3171e 180px, #f3eee5 180px);}
 
 .page.inbox {
   background:
@@ -233,11 +152,7 @@ input[type=checkbox]:checked {
   transform: rotate(-2deg) skew(-10deg);
 }
 
-.stats {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 30px;
-}
+.stats {display: flex; gap: 8px; margin-bottom: 30px;}
 
 .stat {
   width: 90px;
@@ -248,19 +163,9 @@ input[type=checkbox]:checked {
   transform: skew(-10deg);
 }
 
-.stat b {
-  display: block;
-  font-size: 38px;
-}
-
-.stat.white {
-  background: white;
-  color: black;
-}
-
-.stat.red {
-  background: #9e0f14;
-}
+.stat b {display: block; font-size: 38px;}
+.stat.white {background: white; color: black;}
+.stat.red {background: #9e0f14;}
 
 .label {
   display: inline-block;
@@ -271,16 +176,8 @@ input[type=checkbox]:checked {
   transform: skew(-12deg);
 }
 
-.line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0 14px 0;
-}
-
-.line input:not([type=radio]) {
-  flex: 1;
-}
+.line {display: flex; align-items: center; gap: 8px; margin: 8px 0 14px 0;}
+.line input:not([type=radio]) {flex: 1;}
 
 .pick {
   padding: 3px 10px;
@@ -292,20 +189,9 @@ input[type=checkbox]:checked {
   cursor: pointer;
 }
 
-.pick input {
-  display: none;
-}
-
-.pick:has(input:checked) {
-  background: black;
-  color: white;
-}
-
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
+.pick input {display: none;}
+.pick:has(input:checked) {background: black; color: white;}
+.tabs {display: flex; gap: 10px; margin-bottom: 10px;}
 
 .tabs button {
   padding: 5px 14px;
@@ -317,25 +203,10 @@ input[type=checkbox]:checked {
   cursor: pointer;
 }
 
-.tabs button.on {
-  background: white;
-  color: black;
-}
-
-.tabs select {
-  border: 0;
-  background: none;
-  color: white;
-  font-size: 12px;
-}
-
-.tabs select:first-of-type {
-  margin-left: auto;
-}
-
-.tabs option {
-  color: black;
-}
+.tabs button.on {background: white; color: black;}
+.tabs select {border: 0; background: none; color: white; font-size: 12px;}
+.tabs select:first-of-type {margin-left: auto;}
+.tabs option {color: black;}
 
 .row {
   position: relative;
@@ -351,39 +222,13 @@ input[type=checkbox]:checked {
   box-shadow: 6px 6px 0 #555;
 }
 
-.row:nth-child(even) {
-  margin-left: -8px;
-}
-
-.text {
-  flex: 1;
-  cursor: pointer;
-}
-
-.text b {
-  display: block;
-  font-size: 17px;
-}
-
-.text small {
-  color: #888;
-}
-
-.row.done b {
-  color: #999;
-  text-decoration: line-through;
-}
-
-.due {
-  width: 90px;
-  font-weight: bold;
-  font-style: italic;
-}
-
-.late {
-  color: #e3171e;
-  font-weight: bold;
-}
+.row:nth-child(even) {margin-left: -8px;}
+.text {flex: 1; cursor: pointer;}
+.text b {display: block; font-size: 17px;}
+.text small {color: #888;}
+.row.done b {color: #999; text-decoration: line-through;}
+.due {width: 90px; font-weight: bold; font-style: italic;}
+.late {color: #e3171e; font-weight: bold;}
 
 .stamp {
   position: absolute;
@@ -407,22 +252,9 @@ input[type=checkbox]:checked {
   transform: skew(-14deg);
 }
 
-.tag.High {
-  background: #e3171e;
-  color: white;
-}
-
-.tag.Medium {
-  background: black;
-  color: white;
-}
-
-.cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-  margin-top: 30px;
-}
+.tag.High {background: #e3171e; color: white;}
+.tag.Medium {background: black; color: white;}
+.cards {display: flex; flex-wrap: wrap; gap: 40px; margin-top: 30px;}
 
 .pcard {
   width: 330px;
@@ -435,11 +267,7 @@ input[type=checkbox]:checked {
   cursor: pointer;
 }
 
-.pcard.red {
-  background: #e3171e;
-  color: white;
-  transform: rotate(-2deg);
-}
+.pcard.red {background: #e3171e; color: white; transform: rotate(-2deg);}
 
 .pcard h3 {
   display: block;
@@ -450,30 +278,11 @@ input[type=checkbox]:checked {
   font-size: 28px;
 }
 
-.bar {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 10px;
-}
-
-.bar i {
-  width: 24px;
-  height: 14px;
-  background: #f3eee5;
-  transform: skew(-20deg);
-}
-
-.bar i.on {
-  background: #e3171e;
-}
-
-.pcard.red .bar i {
-  background: #9e0f14;
-}
-
-.pcard.red .bar i.on {
-  background: white;
-}
+.bar {display: flex; gap: 4px; margin-bottom: 10px;}
+.bar i {width: 24px; height: 14px; background: #f3eee5; transform: skew(-20deg);}
+.bar i.on {background: #e3171e;}
+.pcard.red .bar i {background: #9e0f14;}
+.pcard.red .bar i.on {background: white;}
 
 .pcard.new {
   border: 3px dashed white;
@@ -483,51 +292,15 @@ input[type=checkbox]:checked {
   cursor: default;
 }
 
-.pcard.new input {
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 15px;
-}
-
-.pcard.new .btn {
-  margin: 0;
-}
-
-.top {
-  color: white;
-}
-
-.page.project > p {
-  margin: 30px 0;
-  font-weight: bold;
-}
-
-.board {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-}
-
-.col {
-  flex: 1;
-}
-
-.col h3 {
-  border: 0;
-  background: black;
-  color: white;
-  transform: skew(-12deg) rotate(-2deg);
-}
-
-.col h3.doing {
-  background: #e3171e;
-}
-
-.col h3.done {
-  border: 2px solid black;
-  background: white;
-  color: black;
-}
+.pcard.new input {width: 100%; box-sizing: border-box; margin-bottom: 15px;}
+.pcard.new .btn {margin: 0;}
+.top {color: white;}
+.page.project > p {margin: 30px 0; font-weight: bold;}
+.board {display: flex; gap: 30px; align-items: flex-start;}
+.col {flex: 1;}
+.col h3 {border: 0; background: black; color: white; transform: skew(-12deg) rotate(-2deg);}
+.col h3.doing {background: #e3171e;}
+.col h3.done {border: 2px solid black; background: white; color: black;}
 
 .card {
   margin-bottom: 18px;
@@ -539,21 +312,9 @@ input[type=checkbox]:checked {
   cursor: pointer;
 }
 
-.card b {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.card div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.card.done b {
-  color: #999;
-  text-decoration: line-through;
-}
+.card b {display: block; margin-bottom: 10px;}
+.card div {display: flex; align-items: center; gap: 10px;}
+.card.done b {color: #999; text-decoration: line-through;}
 
 .who {
   margin-left: auto;
@@ -567,25 +328,9 @@ input[type=checkbox]:checked {
   text-align: center;
 }
 
-.box {
-  width: 230px;
-  padding: 20px;
-  background: black;
-  color: white;
-  transform: rotate(2deg);
-}
-
-.box h3 {
-  margin-top: 0;
-  border: 0;
-  background: #e3171e;
-  color: white;
-  transform: skew(-12deg);
-}
-
-.box small {
-  color: #999;
-}
+.box {width: 230px; padding: 20px; background: black; color: white; transform: rotate(2deg);}
+.box h3 {margin-top: 0; border: 0; background: #e3171e; color: white; transform: skew(-12deg);}
+.box small {color: #999;}
 
 .invite {
   padding: 30px 40px;
@@ -596,20 +341,9 @@ input[type=checkbox]:checked {
   transform: rotate(-3deg);
 }
 
-.invite h2 {
-  margin: 0 0 5px 0;
-  font-size: 40px;
-}
-
-.invite small {
-  display: block;
-  margin-bottom: 20px;
-  color: #888;
-}
-
-.invite .btn {
-  margin: 0 15px 0 0;
-}
+.invite h2 {margin: 0 0 5px 0; font-size: 40px;}
+.invite small {display: block; margin-bottom: 20px; color: #888;}
+.invite .btn {margin: 0 15px 0 0;}
 
 .invite.small {
   margin-top: 40px;
@@ -620,9 +354,7 @@ input[type=checkbox]:checked {
   transform: rotate(-1deg);
 }
 
-.invite.small h2 {
-  font-size: 22px;
-}
+.invite.small h2 {font-size: 22px;}
 
 .auth {
   display: flex;
@@ -634,14 +366,8 @@ input[type=checkbox]:checked {
     linear-gradient(105deg, #e3171e 55%, white 55%, white 56.5%, #0d0d0d 56.5%);
 }
 
-.auth .intro {
-  padding: 20px;
-}
-
-.auth .intro .title {
-  font-size: 64px;
-  white-space: nowrap;
-}
+.auth .intro {padding: 20px;}
+.auth .intro .title {font-size: 64px; white-space: nowrap;}
 
 .auth form {
   width: 340px;
@@ -653,11 +379,7 @@ input[type=checkbox]:checked {
   transform: rotate(-2deg);
 }
 
-.auth label, .dialog label {
-  display: block;
-  margin-bottom: 14px;
-  font-size: 11px;
-}
+.auth label, .dialog label {display: block; margin-bottom: 14px; font-size: 11px;}
 
 .auth input, .dialog input:not([type=radio]), .dialog select, .dialog textarea {
   display: block;
@@ -666,10 +388,7 @@ input[type=checkbox]:checked {
   margin-top: 4px;
 }
 
-.auth .btn {
-  width: 100%;
-  margin: 0 0 15px 0;
-}
+.auth .btn {width: 100%; margin: 0 0 15px 0;}
 
 .overlay {
   position: fixed;
@@ -692,11 +411,7 @@ input[type=checkbox]:checked {
   transform: rotate(-1deg);
 }
 
-.dialog header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
+.dialog header {display: flex; justify-content: space-between; align-items: flex-start;}
 
 .dialog header button {
   border: 0;
@@ -706,18 +421,9 @@ input[type=checkbox]:checked {
   cursor: pointer;
 }
 
-.dialog fieldset {
-  border: 0;
-  padding: 0;
-}
-
-.dialog footer {
-  margin-top: 15px;
-}
-
-.dialog footer .btn {
-  margin: 0 10px 0 0;
-}
+.dialog fieldset {border: 0; padding: 0;}
+.dialog footer {margin-top: 15px;}
+.dialog footer .btn {margin: 0 10px 0 0;}
 
 @media (max-width: 800px) {
   .nav {
@@ -730,24 +436,11 @@ input[type=checkbox]:checked {
     clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 100%);
   }
 
-  .nav b, .nav .user {
-    display: none;
-  }
-
-  .nav a {
-    margin-right: 8px;
-    font-size: 13px;
-  }
-
-  .page {
-    margin-top: 0;
-    padding: 20px 15px 90px 15px;
-  }
-
-  .page.today, .page.inbox, .board, .auth {
-    flex-direction: column;
-    gap: 20px;
-  }
+  .nav b {display: none;}
+  .nav .user {float: none; display: block; margin-top: 8px; font-size: 11px;}
+  .nav a {margin-right: 8px; font-size: 13px;}
+  .page {margin-top: 0; padding: 20px 15px 90px 15px;}
+  .page.today, .page.inbox, .board, .auth {flex-direction: column; gap: 20px;}
 
   .page.today {
     background:
@@ -755,24 +448,9 @@ input[type=checkbox]:checked {
       linear-gradient(170deg, #e3171e 35%, #0d0d0d 35%);
   }
 
-  .left, .box, .pcard, .auth form, .dialog {
-    width: auto;
-  }
-
-  .title, .auth .intro .title {
-    font-size: 48px;
-  }
-
-  .tabs {
-    flex-wrap: wrap;
-  }
-
-  .row {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .dialog {
-    margin: 20px 10px;
-  }
+  .left, .box, .pcard, .auth form, .dialog {width: auto;}
+  .title, .auth .intro .title {font-size: 48px;}
+  .tabs {flex-wrap: wrap;}
+  .row {flex-wrap: wrap; gap: 8px;}
+  .dialog {margin: 20px 10px;}
 }
